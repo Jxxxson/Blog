@@ -24,8 +24,8 @@
 
         <h3>Ajouter un commentaire</h3>
         <form action="../public/index.php?route=addComment&articleId=<?= $article->getId() ?>" method="post">
-            <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>"/>
             <!-- Champ caché pour le token CSRF -->
+            <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>"/>
             <label for="Pseudo">Pseudo :</label><br>
             <input id="Pseudo" type="text" name="pseudo" required/><br><br>
             <label for="comment">Commentaire :</label><br>
