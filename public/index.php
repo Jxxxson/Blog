@@ -1,10 +1,6 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Mireille
- * Date: 25/04/2021
- * Time: 19:15
- */
+
+session_start();
 
 use App\config\Router;
 

@@ -23,19 +23,16 @@
     <div>
 
         <h3>Ajouter un commentaire</h3>
-
         <form action="../public/index.php?route=addComment&articleId=<?= $article->getId() ?>" method="post">
-
-        <label for="Pseudo"> Pseudo : </label><br>
-            <input  id="Pseudo" type="text" name="pseudo" required/><br><br>
-
-
-            <label for="comment"> Commentaire : </label><br>
+            <input type="hidden" name="csrf_token" value="<?= $csrfToken ?>"/>
+            <!-- Champ caché pour le token CSRF -->
+            <label for="Pseudo">Pseudo :</label><br>
+            <input id="Pseudo" type="text" name="pseudo" required/><br><br>
+            <label for="comment">Commentaire :</label><br>
             <textarea id="comment" name="content" rows="4" aria-required="true"></textarea><br><br>
-
             <input type="submit" value="Ajouter le commentaire"/>
-
         </form>
+
     </div>
 </div>
 <br>
