@@ -1,5 +1,5 @@
 <?php
-class Error_404
+class Error_500
 {
     public function display()
     {
