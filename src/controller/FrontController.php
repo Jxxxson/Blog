@@ -3,7 +3,7 @@
 namespace App\src\controller;
 
 use App\src\DAO\ArticleDAO;
-use App\src\DAO\commentDAO;
+use App\src\DAO\CommentDAO;
 use App\src\model\View;
 
 //Démarre la session
@@ -12,46 +12,45 @@ session_start();
 class FrontController
 {
     private $articleDAO;
-
     private $commentDAO;
-
     private $view;
     private $errorController;
 
     public function __construct()
     {
         //Initialisation des variables
-        $this->articleDAO = new ArticleDAO();
-        $this->commentDAO = new CommentDAO();
-        $this->view = new View();
-        $this->errorController = new ErrorController();
+        $this->articleDAO = new ArticleDAO(); // Instancie un objet ArticleDAO pour interagir avec la base de données des articles
+        $this->commentDAO = new CommentDAO(); // Instancie un objet CommentDAO pour interagir avec la base de données des commentaires
+        $this->view = new View(); // Instancie un objet View pour la gestion des vues
+        $this->errorController = new ErrorController(); // Instancie un objet ErrorController pour la gestion des erreurs
     }
 
+    // Méthode pour afficher la page d'accueil avec la liste des articles
     public function home()
     {
-        $articles = $this->articleDAO->getArticles();
-        return $this->view->render('home', ['articles' => $articles]);
+        $articles = $this->articleDAO->getArticles(); // Récupère la liste des articles depuis la base de données
+        return $this->view->render('home', ['articles' => $articles]); // Affiche la vue 'home' avec les données des articles
     }
 
+    // Méthode pour afficher un article et ses commentaires
     public function article($articleId)
     {
-        //Génére un jeton CSRF
+        // Génère un jeton CSRF
         $csrfToken = $this->generateCsrfToken();
 
-        //récupère les info de l'article via l'id de l'article
+        // Récupère les informations de l'article via son identifiant
         $article = $this->articleDAO->getArticle($articleId);
-        //Récupère les commentaires associès à un id d'article
+        // Récupère les commentaires associés à l'article
         $comments = $this->commentDAO->getComments($articleId);
-        //Renvoie la vue associè à la page single.php
+        // Affiche la vue 'single' avec les données de l'article, les commentaires et le jeton CSRF
         return $this->view->render('single', [
             'article' => $article,
             'comments' => $comments,
-            //Jeton CSRF inclus dans le formulaire du commentaire
-            'crsfToken' => $csrfToken
+            'csrfToken' => $csrfToken // Jeton CSRF inclus dans le formulaire de commentaire
         ]);
     }
 
-    // Méthode pour générer un token CSRF
+    // Méthode pour générer un jeton CSRF
     public function generateCsrfToken()
     {
         // Génère un jeton CSRF aléatoire
@@ -64,56 +63,51 @@ class FrontController
         return $token;
     }
 
-    // Méthode addComment
+    // Méthode pour ajouter un commentaire à un article
     public function addComment($articleId, $pseudo, $content)
     {
-        // Vérification des données du formulaire
+        // Vérifie les données du formulaire de commentaire
         if (!$this->validateCommentData($articleId, $pseudo, $content)) {
-            $this->errorController->errorNotFound();
+            $this->errorController->errorNotFound(); // Affiche une erreur 404 si les données du formulaire sont invalides
             return;
         }
 
-        //Ajout du commentaire
+        // Ajoute le commentaire à la base de données
         $this->commentDAO->addComment($articleId, $pseudo, $content) || !$this->validateCsrfToken();
-        // Rediriger vers l'article pour voir le commentaire ajouté
+        // Redirige vers l'article pour voir le commentaire ajouté
         header('Location: index.php?route=article&articleId=' . $articleId);
         exit;
     }
 
-
-    // Exemple validation à améliorer
+    // Méthode de validation des données du formulaire de commentaire
     private function validateCommentData($articleId, $pseudo, $content)
     {
         return !empty($pseudo) && !empty($content) && !empty($articleId) && $_SERVER['REQUEST_METHOD'] === 'POST';
     }
 
+    // Méthode de validation du jeton CSRF
     public function validateCsrfToken()
     {
         // Vérifie si le jeton CSRF est présent dans la requête POST
-        if (!empty($_POST['csrf_token'])) {
+        if (!empty($_POST['csrfToken'])) {
 
             // Récupère le jeton stocké dans la session
             $storedCsrfToken = $_SESSION['csrf_token'];
 
             // Récupère le jeton soumis dans la requête POST
-            $submittedCsrfToken = $_POST['csrf_token'];
+            $submittedCsrfToken = $_POST['csrfToken'];
 
             // Vérifie que les deux jetons sont identiques
             if ($storedCsrfToken === $submittedCsrfToken) {
-
                 // Les jetons sont identiques
                 return true;
-
             } else {
-                // Les jetons sont différents, renvoyer une erreur
+                // Les jetons sont différents, renvoie une erreur
                 return false;
             }
         } else {
-            // Le jeton CSRF est manquant dans la requête POST
-            // Cela peut indiquer une tentative d'attaque CSRF
+            // Le jeton CSRF est manquant dans la requête POST, ce qui peut indiquer une tentative d'attaque CSRF
             return false;
         }
     }
-
-
 }
