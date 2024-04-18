@@ -1,4 +1,13 @@
-<?php $this->title = "Article"; ?>
+<?php
+$this->title = "Article";
+
+use App\src\controller\FrontController;
+
+// Instanciation du FrontController pour utiliser la méthode generateCsrfToken()
+$frontController = new FrontController();
+$csrfToken = $frontController->generateCsrfToken();
+
+?>
 <h1>Mon blog</h1>
 <p>Terminé</p>
 <div>

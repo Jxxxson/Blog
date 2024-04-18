@@ -12,4 +12,6 @@ class ErrorController
     {
         require '../templates/Error_500.php';
     }
+
+
 }
